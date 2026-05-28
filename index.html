@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shivshankar Gupta — Senior SDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #1a1a26;
+      --accent: #5dffb0;
+      --accent2: #7b8cff;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --border: rgba(255,255,255,0.07);
+      --glow: 0 0 40px rgba(93,255,176,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* ── BACKGROUND BLOBS ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -200px; }
+    .blob-2 { width: 500px; height: 500px; background: var(--accent2); bottom: -150px; right: -150px; }
+    .blob-3 { width: 300px; height: 300px; background: var(--accent); top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.05; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 4rem;
+      background: rgba(10,10,15,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── SECTIONS ── */
+    section { position: relative; z-index: 1; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 4rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.2s forwards;
+    }
+
+    .hero-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.35s forwards;
+    }
+
+    .hero-name span {
+      display: block;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.5s forwards;
+    }
+
+    .hero-desc {
+      max-width: 600px;
+      font-size: 1.05rem;
+      color: rgba(232,232,240,0.7);
+      line-height: 1.8;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.65s forwards;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.8s forwards;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0f;
+      border: 1px solid var(--accent);
+      font-weight: 500;
+    }
+    .btn-primary:hover { background: transparent; color: var(--accent); box-shadow: var(--glow); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 4rem;
+      padding-top: 3rem;
+      border-top: 1px solid var(--border);
+      opacity: 0;
+      animation: fadeUp 0.7s 1s forwards;
+      flex-wrap: wrap;
+    }
+
+    .stat-num {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 2.5rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    /* ── GENERIC SECTION WRAPPER ── */
+    .section-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 7rem 4rem;
+    }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: -0.02em;
+      margin-bottom: 3.5rem;
+      line-height: 1.1;
+    }
+
+    /* ── SKILLS ── */
+    #skills { background: var(--surface); }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .skill-card {
+      background: var(--surface);
+      padding: 2rem;
+      transition: background 0.2s;
+    }
+    .skill-card:hover { background: var(--surface2); }
+
+    .skill-card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .skill-card-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.3rem 0.7rem;
+      background: rgba(93,255,176,0.07);
+      border: 1px solid rgba(93,255,176,0.2);
+      border-radius: 2px;
+      color: rgba(232,232,240,0.8);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── EXPERIENCE ── */
+    .exp-list { display: flex; flex-direction: column; gap: 0; }
+
+    .exp-item {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 3rem;
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .exp-item:first-child { border-top: 1px solid var(--border); }
+
+    .exp-period {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      padding-top: 0.3rem;
+    }
+
+    .exp-current {
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-size: 0.65rem;
+      padding: 0.2rem 0.6rem;
+      background: rgba(93,255,176,0.1);
+      border: 1px solid rgba(93,255,176,0.3);
+      border-radius: 20px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+
+    .exp-role {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.3rem;
+    }
+
+    .exp-company {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--accent2);
+      letter-spacing: 0.06em;
+      margin-bottom: 1.2rem;
+    }
+
+    .exp-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .exp-bullets li {
+      font-size: 0.9rem;
+      color: rgba(232,232,240,0.7);
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .exp-bullets li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.75rem;
+    }
+
+    /* ── ACHIEVEMENTS ── */
+    #achievements { background: var(--surface); }
+
+    .achieve-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .achieve-card {
+      background: var(--surface);
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.25s;
+    }
+    .achieve-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s;
+    }
+    .achieve-card:hover { background: var(--surface2); }
+    .achieve-card:hover::before { transform: scaleX(1); }
+
+    .achieve-num {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 3.5rem;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .achieve-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .achieve-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── PROJECTS ── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .project-card {
+      background: var(--bg);
+      padding: 2.5rem;
+      transition: background 0.25s;
+      display: flex;
+      flex-direction: column;
+    }
+    .project-card:hover { background: var(--surface2); }
+
+    .project-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 0.8rem;
+    }
+
+    .project-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      margin-bottom: 0.8rem;
+      letter-spacing: -0.01em;
+    }
+
+    .project-desc {
+      font-size: 0.88rem;
+      color: rgba(232,232,240,0.65);
+      line-height: 1.7;
+      flex: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid rgba(93,255,176,0.3);
+      padding-bottom: 0.1rem;
+      align-self: flex-start;
+      transition: border-color 0.2s;
+    }
+    .project-link:hover { border-color: var(--accent); }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--surface); }
+
+    .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .contact-text {
+      font-size: 1.05rem;
+      color: rgba(232,232,240,0.7);
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+
+    .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 1rem 1.5rem;
+      border: 1px solid var(--border);
+      transition: all 0.25s;
+    }
+    .contact-link:hover { border-color: var(--accent); color: var(--accent); }
+
+    .contact-link-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(93,255,176,0.07);
+      border: 1px solid rgba(93,255,176,0.2);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .contact-link-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .contact-link-value { font-size: 0.88rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-copy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 2rem; }
+      .nav-links { display: none; }
+      #hero, .section-wrap { padding: 6rem 2rem; }
+      .exp-item { grid-template-columns: 1fr; gap: 1rem; }
+      .achieve-grid { grid-template-columns: 1fr; }
+      .contact-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+    }
+    @media (max-width: 600px) {
+      .hero-stats { gap: 2rem; }
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+
+    
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">SG.</div>
+    <ul class="nav-links">
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#achievements">Wins</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+    <!-- HERO -->
+  <section id="hero">
+    <div style="max-width:1200px;margin:0 auto;">
+      <p class="hero-tag">// Senior Software Development Engineer</p>
+      <h1 class="hero-name">
+        Shivshankar<br>
+        <span>Gupta</span>
+      </h1>
+      <p class="hero-title">Node.js · React · MySQL · SaaS Architecture · Full-Stack</p>
+      <p class="hero-desc">
+        7+ years building and scaling full-stack web applications. Specializing in high-performance backend systems, SaaS platforms, and clean API design. Currently architecting SkillsConnect — a campus hiring SaaS.
+      </p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary">Get in touch ↗</a>
+        <a href="#projects" class="btn btn-ghost">View Projects</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">7+</div>
+          <div class="stat-label">Years Experience</div>
+        </div>
+        <div>
+          <div class="stat-num">45%</div>
+          <div class="stat-label">Latency Reduction</div>
+        </div>
+        <div>
+          <div class="stat-num">1K+</div>
+          <div class="stat-label">Hiring Events Served</div>
+        </div>
+        <div>
+          <div class="stat-num">95%</div>
+          <div class="stat-label">Issues Resolved &lt;24h</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="section-wrap">
+      <p class="section-label reveal">// Tech Stack</p>
+      <h2 class="section-title reveal">What I Work With</h2>
+      <div class="skills-grid reveal">
+        <div class="skill-card">
+          <div class="skill-card-icon">⚡</div>
+          <div class="skill-card-title">Languages</div>
+          <div class="skill-tags">
+            <span class="tag">JavaScript</span>
+            <span class="tag">jQuery</span>
+            <span class="tag">PHP</span>
+            <span class="tag">HTML</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon">🚀</div>
+          <div class="skill-card-title">Frameworks</div>
+          <div class="skill-tags">
+            <span class="tag">Node.js + Express</span>
+            <span class="tag">React + Next.js</span>
+            <span class="tag">Laravel</span>
+            <span class="tag">CodeIgniter</span>
+            <span class="tag">Bootstrap</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon">🗄️</div>
+          <div class="skill-card-title">Databases</div>
+          <div class="skill-tags">
+            <span class="tag">MySQL</span>
+            <span class="tag">MongoDB</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon">🔧</div>
+          <div class="skill-card-title">Technologies</div>
+          <div class="skill-tags">
+            <span class="tag">RabbitMQ</span>
+            <span class="tag">Redis</span>
+            <span class="tag">REST API</span>
+            <span class="tag">cURL</span>
+            <span class="tag">AJAX</span>
+            <span class="tag">JSON</span>
+            <span class="tag">Git</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon">💳</div>
+          <div class="skill-card-title">Payments & Infra</div>
+          <div class="skill-tags">
+            <span class="tag">Razorpay</span>
+            <span class="tag">PayPal</span>
+            <span class="tag">CCAvenue</span>
+            <span class="tag">Paykun</span>
+            <span class="tag">AWS S3</span>
+            <span class="tag">Webhook</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon">🎥</div>
+          <div class="skill-card-title">Real-time & Video</div>
+          <div class="skill-tags">
+            <span class="tag">WebRTC</span>
+            <span class="tag">Jitsi</span>
+            <span class="tag">Zoom SDK</span>
+            <span class="tag">Google Meet</span>
+            <span class="tag">CI/CD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="section-wrap">
+      <p class="section-label reveal">// Work History</p>
+      <h2 class="section-title reveal">Experience</h2>
+      <div class="exp-list">
+
+        <div class="exp-item reveal">
+          <div>
+            <div class="exp-period">Oct 2022 – Present<br>Mumbai, India</div>
+            <div class="exp-current">Current</div>
+          </div>
+          <div>
+            <div class="exp-role">Senior Software Developer &amp; Team Lead</div>
+            <div class="exp-company">Upskill Tech Solution Pvt Ltd.</div>
+            <ul class="exp-bullets">
+              <li>Built and optimized scalable backend services with Node.js (Express) and MySQL, improving performance and reliability.</li>
+              <li>Designed efficient database architectures and optimized complex SQL queries, boosting platform speed by 30%.</li>
+              <li>Reduced backend latency by 45% using Redis caching and targeted performance techniques.</li>
+              <li>Implemented Razorpay via webhook-based architecture for real-time payment updates; integrated 4 gateways supporting ₹100K–₹300K monthly.</li>
+              <li>Integrated WebRTC, Jitsi, Zoom, Google Meet, and built a one-way video interview system with AWS S3 storage.</li>
+              <li>Led a secure, scalable multi-tenant SaaS platform for campus hiring — serving 1000+ events.</li>
+              <li>Developed RESTful APIs for Next.js frontend; built Excel-style dynamic data filtering UI.</li>
+              <li>Managed CI/CD pipelines and owned end-to-end delivery with focus on architecture and scalability.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exp-item reveal">
+          <div>
+            <div class="exp-period">Aug 2018 – Sep 2022<br>Mumbai, India</div>
+          </div>
+          <div>
+            <div class="exp-role">Senior Software Developer</div>
+            <div class="exp-company">Atto Infotech Pvt Ltd.</div>
+            <ul class="exp-bullets">
+              <li>Designed and maintained backend systems using CodeIgniter and MySQL across multiple large-scale projects.</li>
+              <li>Integrated payment gateways (Razorpay, PayPal, CCAvenue, Paykun) and third-party services.</li>
+              <li>Managed Bitbucket repositories, CI/CD workflows, and deployments.</li>
+              <li>Conducted code reviews and mentored junior developers; resolved business-critical production issues.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exp-item reveal">
+          <div>
+            <div class="exp-period">Feb 2018 – Jul 2018<br>Mumbai, India</div>
+          </div>
+          <div>
+            <div class="exp-role">Software Developer Intern</div>
+            <div class="exp-company">BDS Service Pvt Ltd</div>
+            <ul class="exp-bullets">
+              <li>Developed UI components and integrated backend APIs in PHP-based applications.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <section id="achievements">
+    <div class="section-wrap">
+      <p class="section-label reveal">// Impact</p>
+      <h2 class="section-title reveal">Key Achievements</h2>
+      <div class="achieve-grid reveal">
+        <div class="achieve-card">
+          <div class="achieve-num">30%</div>
+          <div class="achieve-title">Platform Speed Boost</div>
+          <div class="achieve-desc">Increased platform speed and stability through targeted SQL query optimizations and caching strategies.</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-num">45%</div>
+          <div class="achieve-title">Latency Reduction</div>
+          <div class="achieve-desc">Slashed backend latency using Redis caching and performance tuning across critical API endpoints.</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-num">1K+</div>
+          <div class="achieve-title">Hiring Events Delivered</div>
+          <div class="achieve-desc">Led the team to deliver a scalable multi-tenant SaaS platform serving 1000+ campus hiring events.</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-num">95%</div>
+          <div class="achieve-title">Critical Issue Resolution</div>
+          <div class="achieve-desc">Resolved 95% of business-critical production issues within 24 hours, dramatically improving platform reliability.</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-num">₹3L</div>
+          <div class="achieve-title">Monthly Transactions</div>
+          <div class="achieve-desc">Architected multi-gateway payment infrastructure processing ₹100K–₹300K in transactions monthly.</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-num">4</div>
+          <div class="achieve-title">Payment Gateways Integrated</div>
+          <div class="achieve-desc">Successfully integrated Razorpay, PayPal, CCAvenue, and Paykun for domestic and international payments.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-wrap">
+      <p class="section-label reveal">// Portfolio</p>
+      <h2 class="section-title reveal">Projects</h2>
+      <div class="projects-grid reveal">
+
+        <div class="project-card">
+          <div class="project-tag">SaaS · Node.js · Next.js</div>
+          <div class="project-name">SkillsConnect</div>
+          <div class="project-desc">A campus hiring SaaS platform (in development) built with Next.js and Node.js, focusing on clean architecture and high-performance multi-tenant systems.</div>
+          <span class="project-link">In Development</span>
+        </div>
+
+        <div class="project-card">
+          <div class="project-tag">PHP · MySQL · Media</div>
+          <div class="project-name">Footage Farm</div>
+          <div class="project-desc">Public-domain archival footage platform with intelligent video categorization by tags, year, country, and categories. Optimized for high-traffic search performance.</div>
+          <a href="https://footagefarm.com" target="_blank" class="project-link">footagefarm.com ↗</a>
+        </div>
+
+        <div class="project-card">
+          <div class="project-tag">CodeIgniter · MySQL · SaaS</div>
+          <div class="project-name">Gryd</div>
+          <div class="project-desc">Cloud-based career pathing and internal mobility platform with an Excel-like drag-and-drop interface featuring merge, split, undo, and dynamic UI interactions.</div>
+          <a href="https://gryd.pro" target="_blank" class="project-link">gryd.pro ↗</a>
+        </div>
+
+        <div class="project-card">
+          <div class="project-tag">CodeIgniter · API · Logistics</div>
+          <div class="project-name">Supply Chain Tribe</div>
+          <div class="project-desc">Supply chain and logistics media platform with API integrations, cURL-based content fetching, and multi-platform social sharing functionality.</div>
+          <a href="https://www.supplychaintribe.com" target="_blank" class="project-link">supplychaintribe.com ↗</a>
+        </div>
+
+        <div class="project-card">
+          <div class="project-tag">CodeIgniter · CMS · Non-Profit</div>
+          <div class="project-name">Sevasadan</div>
+          <div class="project-desc">Custom CMS for a non-profit organization built with CodeIgniter and MySQL, enabling dynamic content management similar to WordPress architecture.</div>
+          <a href="https://sevasadan.org" target="_blank" class="project-link">sevasadan.org ↗</a>
+        </div>
+
+        <div class="project-card">
+          <div class="project-tag">PHP · Payments · Matchmaking</div>
+          <div class="project-name">SirfCoffee</div>
+          <div class="project-desc">Premium matchmaking platform with hybrid Core PHP and CodeIgniter backend, integrating Razorpay (INR) and PayPal (international) payment gateways.</div>
+          <a href="https://sirfcoffee.com" target="_blank" class="project-link">sirfcoffee.com ↗</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="section-wrap">
+      <p class="section-label reveal">// Let's Talk</p>
+      <h2 class="section-title reveal">Get in Touch</h2>
+      <div class="contact-inner reveal">
+        <div>
+          <p class="contact-text">
+            Open to new opportunities, collaborations, and interesting projects. Whether you have a challenging backend problem to solve or a SaaS product to build — let's talk.
+          </p>
+          <a href="mailto:guptashivshankar.573@gmail.com" class="btn btn-primary" style="text-decoration:none;">Send an Email ↗</a>
+        </div>
+        <div class="contact-links">
+          <a href="mailto:guptashivshankar.573@gmail.com" class="contact-link">
+            <div class="contact-link-icon">✉</div>
+            <div>
+              <div class="contact-link-label">Email</div>
+              <div class="contact-link-value">guptashivshankar.573@gmail.com</div>
+            </div>
+          </a>
+          <a href="tel:+918898035198" class="contact-link">
+            <div class="contact-link-icon">📞</div>
+            <div>
+              <div class="contact-link-label">Phone</div>
+              <div class="contact-link-value">+91 8898035198</div>
+            </div>
+          </a>
+          <a href="https://www.linkedin.com/in/shivshankar-guptasde/" target="_blank" class="contact-link">
+            <div class="contact-link-icon">in</div>
+            <div>
+              <div class="contact-link-label">LinkedIn</div>
+              <div class="contact-link-value">shivshankar-guptasde</div>
+            </div>
+          </a>
+          <div class="contact-link" style="cursor:default;">
+            <div class="contact-link-icon">📍</div>
+            <div>
+              <div class="contact-link-label">Location</div>
+              <div class="contact-link-value">Powai, Mumbai, India</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-copy">© 2025 Shivshankar Gupta. All rights reserved.</span>
+    <span class="footer-copy">Built with ♥ in Mumbai</span>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Active nav highlight
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.getAttribute('id');
+      });
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + current ? 'var(--accent)' : '';
+      });
+    });
+  </script>
+</body>
+</html>
